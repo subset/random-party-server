@@ -11,6 +11,8 @@
 |
 */
 
-$app->get('/', function() use ($app) {
-    return $app->welcome();
+$app->get('/', ['as' => 'hello', 'uses' => 'App\Http\Controllers\IndexController@index']);
+
+$app->group(['prefix' => 'occasions'], function($app) {
+	$app->get('/', ['as' => 'occasions.index', 'uses' => 'App\Http\Controllers\OccasionsController@index']);
 });
