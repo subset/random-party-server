@@ -14,9 +14,20 @@ class OccasionsTableSeeder extends Seeder {
 	{
 		Occasion::truncate();
 
-		$day = 18;
-		$month = 6;
-		$wiki = qp('https://en.wikipedia.org/wiki/June_18');
+		for ($month = 1; $month <= 12; $month++)
+		{
+			for ($day = 1; $day <= cal_days_in_month(CAL_GREGORIAN, $month, date('Y')); $day++)
+			{
+				echo 'Processing ' . $day  . ' ' . date('F', mktime(0, 0, 0, $month, 1)) . PHP_EOL;
+				$this->importFromWikipedia($day, $month);
+			}
+		}
+	}
+
+
+	private function importFromWikipedia($day, $month, $language = 'en')
+	{
+		$wiki = qp('https://' . $language . '.wikipedia.org/wiki/' . date('F', mktime(0, 0, 0, $month, 1)) . '_' . $day);
 
 		$events = explode("\n", trim(qp($wiki->find('#Events')->parent())->next()->text()));
 		foreach ($events as $event)
@@ -45,10 +56,11 @@ class OccasionsTableSeeder extends Seeder {
 			}
 		}
 
-		$holidays = qp($wiki->find('#Holidays_and_observances')->parent());
+		$holidays = qp($wiki->find('#Holidays_and_observances, #Holidays_and_observations')->parent());
 		while ($holidays = $holidays->next())
 		{
 			$holidays->find('li a[title="Feast Day"]')->parent()->remove();
+			$holidays->find('li a[title="Feast day"]')->parent()->remove();
 			if ($holidays->get(0)->nodeName != 'ul')
 			{
 				break;
@@ -68,7 +80,7 @@ class OccasionsTableSeeder extends Seeder {
 	private function convertWikipediaTextToOccasion($day, $month, $type, $text, $language = 'en')
 	{
 		if (!$text) return null;
-
+		echo '    - ' . $text . PHP_EOL;
 		$occasion = new Occasion();
 
 		$occasion->day = $day;

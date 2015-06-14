@@ -21,13 +21,13 @@ class Occasion extends Model
 		}
 
 		$currentYear = date('Y');
-		$isCentury = ($currentYear - $this->year) % 100 === 0;
+		$isCentury = ($currentYear - $this->year) > 0 && ($currentYear - $this->year) % 100 === 0;
 		$isDecade = false;
 		if (!$isCentury)
 		{
-			$isDecade = ($currentYear - $this->year) % 10 === 0;
+			$isDecade = ($currentYear - $this->year) > 0 && ($currentYear - $this->year) % 10 === 0;
 		}
-		$prominence = intval($isCentury) * 100000 + intval($isDecade) * 10000 + ($currentYear - $this->year) * 10;
+		$prominence = intval($isCentury) * 1000000 + intval($isDecade) * 100000 + ($currentYear - $this->year) * 10;
 		switch ($this->type)
 		{
 			case Occasion::DEATH:
@@ -40,7 +40,6 @@ class Occasion extends Model
 				$prominence += 3;
 				break;
 		}
-
 		return $prominence;
 	}
 
