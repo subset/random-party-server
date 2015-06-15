@@ -18,7 +18,7 @@ class OccasionsTableSeeder extends Seeder {
 		{
 			for ($day = 1; $day <= cal_days_in_month(CAL_GREGORIAN, $month, date('Y')); $day++)
 			{
-				echo 'Processing ' . $day  . ' ' . date('F', mktime(0, 0, 0, $month, 1)) . PHP_EOL;
+				echo  PHP_EOL . 'Processing ' . $day  . ' ' . date('F', mktime(0, 0, 0, $month, 1)) . PHP_EOL;
 				$this->importFromWikipedia($day, $month);
 			}
 		}
@@ -61,6 +61,9 @@ class OccasionsTableSeeder extends Seeder {
 		{
 			$holidays->find('li a[title="Feast Day"]')->parent()->remove();
 			$holidays->find('li a[title="Feast day"]')->parent()->remove();
+			$holidays->find('li a[title="Calendar of saints"]')->parent()->remove();
+			$holidays->find('li a[title="Calendar of Saints"]')->parent()->remove();
+			$holidays->find('li a[title="Calendar Of Saints"]')->parent()->remove();
 			if ($holidays->get(0)->nodeName != 'ul')
 			{
 				break;
@@ -80,7 +83,7 @@ class OccasionsTableSeeder extends Seeder {
 	private function convertWikipediaTextToOccasion($day, $month, $type, $text, $language = 'en')
 	{
 		if (!$text) return null;
-		echo '    - ' . $text . PHP_EOL;
+		echo '#';
 		$occasion = new Occasion();
 
 		$occasion->day = $day;
@@ -113,6 +116,10 @@ class OccasionsTableSeeder extends Seeder {
 			{
 				$occasion->subject = trim($matches[1]);
 				$occasion->subjectDetail = trim($matches[2]);
+			}
+			if (preg_match('/(.+)\((.+)\)/', $occasion->subject , $matches))
+			{
+				$occasion->subject = trim($matches[1]);
 			}
 			if (preg_match('/(.+)\((.+)\)/', $occasion->subjectDetail , $matches))
 			{

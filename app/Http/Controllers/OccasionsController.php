@@ -2,13 +2,23 @@
 
 use App\Models\Occasion;
 use Illuminate\Http\Request;
-use Illuminate\Support\Debug\Dumper;
+use Symfony\Component\HttpFoundation\Response;
 
 class OccasionsController extends Controller
 {
 	public function index(Request $request)
 	{
-		$occasions = Occasion::where('month', '=', 11)->where('day', '=', 5)->get()->sortBy('prominence', SORT_REGULAR, true);
-		return response()->json($occasions->take(10));
+		if (!$request->has('month') && !$request->has('day'))
+		{
+			abort(Response::HTTP_FORBIDDEN, 'Requests should always query for a specific day and month');
+		}
+
+		$occasions = Occasion
+			::where('month', '=', $request->input('month'))
+			->where('day', '=', $request->input('day'))
+			->get()
+			->sortBy('prominence', SORT_REGULAR, true)
+		;
+		return response()->json(['occasions' => $occasions]);
 	}
 }
